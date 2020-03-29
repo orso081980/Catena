@@ -8,8 +8,10 @@ password: 18081980
 
 JWT:
 
+JS  
 'Content-type': 'application/json',  
-'Authorization': JWT_AUTH_SECRET_KEY  
+'Authorization': 'JWT_AUTH_SECRET_KEY'  
 
+wp-config.php  
 define('JWT_AUTH_SECRET_KEY', 'yoursaltystring');  
 define('JWT_AUTH_CORS_ENABLE', true);  
