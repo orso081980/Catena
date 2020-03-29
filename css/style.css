@@ -1,0 +1,6 @@
+.top-list table thead th {
+  background: #fdd91a;
+  border-right: 1px solid lightgrey; }
+  .top-list table tbody td {
+    border-right: 1px solid lightgrey;
+    border-left: 1px solid lightgrey; }
