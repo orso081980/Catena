@@ -3,12 +3,12 @@ A plugin to rate a service from 1 to 5 starts thought a shortcode [top_list_rend
 
 Basic Authentication:
 
-admin: marco  
-password: 18081980  
+admin: youradminname  
+password: yourpassword  
 
 JWT:
 
-JS  
+file.js  
 'Content-type': 'application/json',  
 'Authorization': 'JWT_AUTH_SECRET_KEY'  
 
