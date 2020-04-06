@@ -24,7 +24,6 @@
 
 if ( ! defined( 'WPINC' ) ) die;
 if ( ! defined( 'ABSPATH' ) ) exit;
-
 if ( !class_exists( 'TopListMarco' ) ) {
 
     class TopListMarco {
@@ -41,11 +40,14 @@ if ( !class_exists( 'TopListMarco' ) ) {
 
             register_activation_hook(__FILE__, array($this ,'TopListMarco_install') );
             register_deactivation_hook( __FILE__, array($this ,'TopListMarco_remove') );
+
             add_action('admin_enqueue_scripts', array( $this,'TopListScript') );
             add_action('admin_menu', array( $this,'top_list_menu') );
-            add_shortcode('top_list_render', array( $this,'top_list_render') );
             add_action( 'rest_api_init',  array( $this,'my_register_route' ) );
             
+            add_shortcode('top_list_render', array( $this,'top_list_render') );
+            add_shortcode('top_list_rest_route', array( $this,'top_list_rest_route') );
+
             $this->wpdb = $wpdb;
             $this->brand_table = $this->wpdb->prefix . "top_list_brand";
             $this->rating_table = $this->wpdb->prefix . "top_list_rating";
@@ -122,14 +124,17 @@ if ( !class_exists( 'TopListMarco' ) ) {
         public function top_list_list() {
 
             $id = $_POST["delete"];
+
             $rows = $this->wpdb->get_results("SELECT *
                 FROM $this->brand_table
                 INNER JOIN $this->rating_table ON $this->brand_table.`id` = $this->rating_table.`brand_id`");
+
             if (isset($_POST['delete'])) {
                 $this->wpdb->query($this->wpdb->prepare("DELETE FROM $this->brand_table WHERE id = %d", $id));
                 $this->wpdb->query($this->wpdb->prepare("DELETE FROM $this->rating_table WHERE brand_id = %d", $id));
                 require_once(ROOTDIR . 'top_list_list.php');
             }
+
             require_once(ROOTDIR . 'top_list_list.php');
 
         }
@@ -144,6 +149,7 @@ if ( !class_exists( 'TopListMarco' ) ) {
                 if ($rating > 5 || !is_numeric($rating) || is_numeric($name)) {
                     $wrong = true;
                 } 
+
                 $exists = $this->wpdb->get_var( $this->wpdb->prepare(
                     "SELECT COUNT(*) FROM $this->brand_table WHERE name = %s", $name
                 ) );
@@ -171,6 +177,7 @@ if ( !class_exists( 'TopListMarco' ) ) {
                 }
 
             }
+
             require_once(ROOTDIR . 'top_list_create.php');
 
         }
@@ -199,15 +206,23 @@ if ( !class_exists( 'TopListMarco' ) ) {
                 );
 
             } else if (isset($_POST['update']) && $rating > 5 ) {
+
                 $wrong = true;
+
             } else if (isset($_POST['update']) && !is_numeric($rating) ) {
+
                 $wrong = true;
             } else if (isset($_POST['update']) && is_numeric($name) ) {
+
                 $wrong = true;
+
             } else if (isset($_POST['delete'])) {
+
                 $this->wpdb->query($this->wpdb->prepare("DELETE FROM $this->brand_table WHERE id = %d", $id));
                 $this->wpdb->query($this->wpdb->prepare("DELETE FROM $this->rating_table WHERE brand_id = %d", $id));
+
             } else {
+
                 $locations = $this->wpdb->get_results($this->wpdb->prepare("SELECT *
                     FROM $this->brand_table
                     INNER JOIN $this->rating_table ON $this->brand_table.`id` = $this->rating_table.`brand_id` where id=%d", $id));
@@ -221,7 +236,6 @@ if ( !class_exists( 'TopListMarco' ) ) {
 
             require_once(ROOTDIR . 'top_list_update.php');
         }
-
 
         public function top_list_render() {
 
@@ -240,7 +254,6 @@ if ( !class_exists( 'TopListMarco' ) ) {
                     'name' => $value->name,
                     'rating' => $value->rating
                 );
-
 
             }
 
@@ -266,6 +279,7 @@ if ( !class_exists( 'TopListMarco' ) ) {
             $rows = $this->wpdb->get_results("SELECT *
                 FROM $this->brand_table
                 INNER JOIN $this->rating_table ON $this->brand_table.`id` = $this->rating_table.`brand_id` ORDER BY `rating` DESC");
+
             $post_data = array();
 
             foreach ($rows as $value ) {
@@ -285,10 +299,8 @@ if ( !class_exists( 'TopListMarco' ) ) {
 
         public function my_top_list_post( $request ) {
 
-            $response['id'] = $request['id'];
             $response['name'] = $request['name'];
             $response['rating'] = $request['rating'];
-            $response['brand_id'] = $request['brand_id'];
 
             if ($response['rating'] > 5 || !is_numeric($response['rating']) || is_numeric($response['name'])) {
                 $wrong = true;
@@ -315,11 +327,15 @@ if ( !class_exists( 'TopListMarco' ) ) {
                     ),
                     array('%d')
                 );
+
                 $res = new WP_REST_Response($response, 200);
                 return [$res];
+
             } else {
+
                 $res = new WP_REST_Response('something get wrong');
                 return [$res];
+
             }  
             
         }
@@ -345,6 +361,33 @@ if ( !class_exists( 'TopListMarco' ) ) {
 
             $res = new WP_REST_Response($response, 200);
             return [$res];
+
+        }
+
+        public function my_top_list_edit( $request ) {
+
+            $response['id'] = $request['id'];
+            $response['name'] = $request['name'];
+            $response['rating'] = $request['rating'];
+            
+            $this->wpdb->update(
+                $this->brand_table,
+                array(
+                    'name' => $response['name'],
+                ),
+                array('id' => $response['id'])
+            );
+
+            $this->wpdb->update(
+                $this->rating_table,
+                array(
+                    'rating'  => $response['rating'],
+                ),
+                array('brand_id' => $response['id'])
+            );
+            $res = new WP_REST_Response($response, 200);
+            return [$res];
+
         }
 
         public function my_register_route() {
@@ -371,7 +414,45 @@ if ( !class_exists( 'TopListMarco' ) ) {
                         return current_user_can( 'edit_posts' );
                     },
                 ),
+                array(
+                    'methods'  => WP_REST_Server::EDITABLE,
+                    'callback' => array($this, 'my_top_list_edit'),
+                    'permission_callback' => function() {
+                        return current_user_can( 'edit_posts' );
+                    },
+                ),
             ) );
+
+        }
+
+        public function top_list_rest_route() {
+
+            wp_deregister_script('jquery');
+            wp_enqueue_style( 'bootstrap', plugins_url('css/bootstrap.min.css', __FILE__ ) );
+            wp_enqueue_style( 'style', plugins_url('css/style.css', __FILE__ ) );
+            wp_register_script('jquery', 'https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js', '', '', true );
+            wp_enqueue_script('jquery');
+            wp_register_script('front-main', plugins_url('js/front-main.js' , __FILE__ ), '', '', true );
+            wp_enqueue_script('front-main');
+            wp_localize_script( 'front-main', 'wpApiSettings', array(
+                'root' => esc_url_raw( rest_url() ),
+                'nonce' => wp_create_nonce( 'wp_rest' )
+            ) );
+
+            $atts = shortcode_atts( array(
+                'data'=>'0'
+            ) , $atts);
+
+            $content =  (empty($content))? " " : $content;
+
+            extract($atts);
+            ob_start();
+
+            if ( is_page( 'routeapi' ) ) {
+                include( dirname(__FILE__) . '/top_list_rest_route.php' );
+            }
+
+            return ob_get_clean();
         }
 
     }

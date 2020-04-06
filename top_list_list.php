@@ -20,6 +20,7 @@
                 <th class="manage-column ss-list-width">Name</th>
                 <th class="manage-column ss-list-width">Rating</th>
                 <th>&nbsp;</th>
+                <th>&nbsp;</th>
             </tr>
             <?php foreach ($rows as $row): ?>
                 <tr>
@@ -37,4 +38,10 @@
             <?php endforeach; ?>
         </table>
     <?php } ?>
+</div>
+<div class="tablenav top">
+    <a href="<?= get_home_url() ?>/freespins/">View freespins table</a>
+</div>
+<div class="tablenav top">
+    <a href="<?= get_home_url() ?>/casinobonuses/">View casinobonuses table</a>
 </div>
