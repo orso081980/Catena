@@ -4,3 +4,7 @@
   .top-list table tbody td {
     border-right: 1px solid lightgrey;
     border-left: 1px solid lightgrey; }
+    .top-list table tbody tr {
+      border-bottom: 1px solid lightgrey; }
+  .top-list table input {
+    width: 100%; }

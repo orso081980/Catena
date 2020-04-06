@@ -11,6 +11,12 @@
 				border-right: 1px solid lightgrey;
 				border-left: 1px solid lightgrey;
 			}
+			tr {
+				border-bottom: 1px solid lightgrey;
+			}
+		}
+		input {
+			width: 100%;
 		}
 	}
 }
