@@ -4,7 +4,7 @@ A plugin to rate a service from 1 to 5 starts thought a shortcode [top_list_rend
 Nonce (ufficial):  
 http://(yourwebsite)/routeapi/
 
-Basic Authentication:
+Basic Authentication:  
 admin: youradminname  
 password: yourpassword  
 
