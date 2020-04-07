@@ -2,7 +2,8 @@
 A plugin to rate a service from 1 to 5 starts thought a shortcode [top_list_render], and through a rest-api call:
 
 Nonce (ufficial):  
-http://(yourwebsite)/routeapi/
+http://(yourwebsite)/routeapi/  
+Branch: REST-API
 
 Basic Authentication:  
 admin: youradminname  
